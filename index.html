@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Одна жизнь · One Life</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f4ecdc; --paper2:#ebe0c9; --card:#fffaf0; --ink:#2a2420; --soft:#6b5e52;
+    --red:#a8322a; --line:#d6c8ab; --dots:rgba(120,90,50,.06);
+    --t-tender:#c0704f; --t-bold:#a8322a; --t-grit:#24365c; --t-wit:#5f7a3a;
+  }
+  html.dark{
+    --paper:#1d1a17; --paper2:#28231f; --card:#242019; --ink:#efe6d4; --soft:#b1a28c;
+    --red:#d65a4f; --line:#3e362e; --dots:rgba(255,240,210,.035);
+    --t-tender:#d98a68; --t-bold:#d65a4f; --t-grit:#7b98d6; --t-wit:#8fae62;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--paper);color:var(--ink)}
+  body{
+    font-family:"PT Serif",Georgia,serif;font-size:18px;line-height:1.6;
+    background-image:radial-gradient(var(--dots) 1px,transparent 1px);
+    background-size:4px 4px;min-height:100vh;
+  }
+  .wrap{max-width:720px;margin:0 auto;padding:20px 20px 70px}
+  header.top{border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:24px}
+  .toprow{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .brand{font-family:"Playfair Display",serif;font-weight:800;letter-spacing:.02em;font-size:14px;text-transform:uppercase}
+  .backlink{display:none;font:inherit;font-size:14px;background:none;border:none;color:var(--soft);cursor:pointer;padding:0;margin-bottom:6px}
+  .lang{display:flex;border:1.5px solid var(--ink);border-radius:2px;overflow:hidden;flex-shrink:0}
+  .lang button{font:inherit;font-size:13px;font-weight:700;padding:3px 10px;border:none;background:transparent;color:var(--ink);cursor:pointer}
+  .lang button.on{background:var(--ink);color:var(--paper)}
+  .progress{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:13px;color:var(--soft)}
+  .ptrack{flex:1;height:4px;background:var(--line);position:relative}
+  .pfill{position:absolute;left:0;top:0;bottom:0;background:var(--red);transition:width .4s}
+  .actlabel{font-family:"Playfair Display",serif;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);margin-bottom:6px}
+  .year{font-family:"Playfair Display",serif;font-weight:800;font-size:clamp(64px,16vw,116px);line-height:.9;color:var(--red);margin:0}
+  .place{font-style:italic;color:var(--soft);margin:6px 0 4px}
+  h2{font-family:"Playfair Display",serif;font-weight:600;font-size:27px;line-height:1.2;margin:4px 0 18px}
+  .story p{margin:0 0 14px}
+  .q{font-family:"Playfair Display",serif;font-style:italic;font-size:21px;margin:26px 0 12px}
+  .picked{font-style:italic;color:var(--soft);margin:0}
+  .choices{display:grid;gap:10px}
+  .choice{
+    text-align:left;font:inherit;font-size:17px;color:var(--ink);cursor:pointer;
+    background:var(--paper2);border:1.5px solid var(--ink);border-radius:2px;
+    padding:13px 16px;box-shadow:3px 3px 0 var(--ink);transition:transform .08s, box-shadow .08s;
+  }
+  .choice:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+  @media (hover:hover){.choice:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}}
+  .result{margin-top:22px;padding-left:16px;border-left:3px solid var(--red);animation:fade .5s ease}
+  .fact{margin-top:20px;background:var(--card);border:1px dashed var(--soft);padding:12px 16px;font-size:15.5px;color:var(--soft)}
+  .fact b{color:var(--ink);font-family:"Playfair Display",serif;letter-spacing:.04em;text-transform:uppercase;font-size:12.5px;display:block;margin-bottom:3px}
+  .btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+  .next{font:inherit;font-family:"Playfair Display",serif;font-weight:600;font-size:18px;
+    background:var(--ink);color:var(--paper);border:none;padding:12px 22px;cursor:pointer;border-radius:2px}
+  .ghost{font:inherit;font-size:16px;background:transparent;color:var(--ink);border:1.5px solid var(--ink);padding:10px 18px;cursor:pointer;border-radius:2px}
+  .tones{display:flex;gap:14px;flex-wrap:wrap;margin-top:40px;padding-top:14px;border-top:1px solid var(--line);font-size:13.5px;color:var(--soft)}
+  .tone{display:flex;align-items:center;gap:6px}
+  .bar{display:inline-flex;gap:2px;flex-wrap:wrap;max-width:160px}
+  .bar i{width:6px;height:12px;background:var(--line);display:block}
+  .cover-title{font-family:"Playfair Display",serif;font-weight:800;font-size:clamp(40px,10vw,64px);line-height:1;margin:10px 0 18px}
+  .cover-title em{color:var(--red);font-style:italic;font-weight:600}
+  .intro p{margin:0 0 14px}
+  .note{font-size:14px;color:var(--soft);margin-top:28px}
+  .acts-list{margin:22px 0 4px;padding:0;list-style:none;border-top:1px solid var(--line)}
+  .acts-list li{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:15.5px}
+  .acts-list span:last-child{color:var(--soft);font-style:italic;white-space:nowrap}
+  .lives{display:grid;gap:14px;margin-top:22px}
+  .life{display:block;width:100%;text-align:left;font:inherit;color:var(--ink);cursor:pointer;background:var(--card);
+    border:1.5px solid var(--ink);border-left:8px solid var(--c,var(--red));border-radius:2px;padding:14px 16px;box-shadow:3px 3px 0 var(--ink)}
+  .life:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+  .life .nm{font-family:"Playfair Display",serif;font-weight:800;font-size:23px;line-height:1.15}
+  .life .yr{color:var(--soft);font-size:14px;margin-left:6px;font-family:"PT Serif",serif;font-weight:400}
+  .life .tl{font-style:italic;color:var(--soft);font-size:15.5px;margin-top:2px}
+  .life .st{font-size:13px;margin-top:8px;color:var(--soft)}
+  .life .st b{color:var(--c,var(--red))}
+  .interlude{text-align:center;padding:26px 0}
+  .interlude .roman{font-family:"Playfair Display",serif;font-weight:800;font-size:88px;line-height:1;color:var(--red)}
+  .interlude h2{margin-top:10px}
+  .interlude .chip{display:inline-block;color:#fff;padding:4px 14px;border-radius:14px;font-size:15px;margin:6px 0 14px}
+  .portrait{font-size:19px}
+  .lifeline{margin:26px 0 8px}
+  .lifeline svg{width:100%;height:auto;display:block}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13.5px;color:var(--soft);margin-top:8px}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+  details{margin-top:22px;border-top:1px solid var(--line);padding-top:10px}
+  summary{cursor:pointer;font-family:"Playfair Display",serif;font-weight:600;font-size:18px}
+  .path-act{font-family:"Playfair Display",serif;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);margin:18px 0 4px}
+  .path-row{display:grid;grid-template-columns:62px 1fr;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:15.5px}
+  .path-row .y{font-family:"Playfair Display",serif;font-weight:800;color:var(--red)}
+  .path-row .c{color:var(--soft);font-style:italic}
+  .tag{display:inline-block;font-size:12px;padding:1px 7px;border-radius:10px;color:#fff;margin-left:6px;font-style:normal;vertical-align:1px}
+  .loading{color:var(--soft);font-style:italic;padding:40px 0;text-align:center}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .screen{animation:fade .45s ease}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <button class="backlink" id="backlink"></button>
+    <div class="toprow">
+      <div class="brand" id="brand"></div>
+      <div class="lang"><button data-l="ru">RU</button><button data-l="en">EN</button></div>
+    </div>
+    <div class="progress" id="progress"></div>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script src="lives.js"></script>
+<script>
+/* ================= Telegram ================= */
+const TGW = window.Telegram && window.Telegram.WebApp;
+const tg = TGW && TGW.initData ? TGW : null;          // null when opened outside Telegram
+const tgAtLeast = v => !!(tg && tg.isVersionAtLeast && tg.isVersionAtLeast(v));
+
+function applyTheme(){
+  const dark = tg ? tg.colorScheme==="dark" : false;
+  document.documentElement.classList.toggle("dark", dark);
+  if(tgAtLeast("6.1")){
+    const bg = getComputedStyle(document.documentElement).getPropertyValue("--paper").trim();
+    try{ tg.setHeaderColor(bg); tg.setBackgroundColor(bg); }catch(e){}
+  }
+}
+function haptic(kind){
+  if(!tgAtLeast("6.1")) return;
+  try{ kind==="success" ? tg.HapticFeedback.notificationOccurred("success") : tg.HapticFeedback.impactOccurred("light"); }catch(e){}
+}
+
+/* ============ Storage: Telegram cloud, else this browser ============ */
+const store = {
+  get(k){
+    return new Promise(res=>{
+      let local=null; try{ local=localStorage.getItem(k); }catch(e){}
+      if(!tgAtLeast("6.9")) return res(local);
+      try{ tg.CloudStorage.getItem(k,(err,v)=>res(err||!v ? local : v)); }catch(e){ res(local); }
+    });
+  },
+  set(k,v){
+    try{ localStorage.setItem(k,v); }catch(e){}
+    if(tgAtLeast("6.9")){ try{ tg.CloudStorage.setItem(k,v,()=>{}); }catch(e){} }
+  }
+};
+const lifeKey = id => "ol_life_"+id;
+
+/* ================= Global UI ================= */
+const G = {
+  ru:{ app:"Одна жизнь", menuKicker:"Текстовые игры о реальных людях",
+       menuTitle:"Чью жизнь<br><em>Вы проживёте?</em>",
+       menuP:"Все ключевые события в этих играх настоящие и происходят в любом случае. Вы выбираете только, как герой их переживает.",
+       notStarted:"Ещё не начато", inProgress:"Пройдено глав: <b>{n}</b>", done:"<b>Пройдено</b>",
+       soon:"Скоро здесь появятся новые жизни.", allLives:"← Все жизни", loading:"Загрузка…", loadError:"Не удалось загрузить игру. Проверьте соединение.",
+       seePortrait:"Посмотреть портрет" },
+  en:{ app:"One Life", menuKicker:"Text games about real people",
+       menuTitle:"Whose life<br><em>will you live?</em>",
+       menuP:"Every key event in these games is real and happens no matter what. All you choose is how the person lives through it.",
+       notStarted:"Not started yet", inProgress:"Chapters done: <b>{n}</b>", done:"<b>Completed</b>",
+       soon:"More lives are coming soon.", allLives:"← All lives", loading:"Loading…", loadError:"Couldn't load the game. Please check your connection.",
+       seePortrait:"See the portrait" }
+};
+
+/* ================= Engine ================= */
+const TONE_KEYS=["tender","bold","grit","wit"];
+const TONE_COLOR={tender:"var(--t-tender)",bold:"var(--t-bold)",grit:"var(--t-grit)",wit:"var(--t-wit)"};
+const ROMAN=["I","II","III","IV","V","VI","VII","VIII","IX","X"];
+window.LIVES_DATA = window.LIVES_DATA || {};
+
+let S={lang:"ru", life:null, screen:"menu", i:0, picks:[], act:0};
+const progressCache={};   // life id -> saved state, for the menu
+
+const g=()=>G[S.lang];
+const lifeMeta=id=>LIVES.find(l=>l.id===id);
+const D=()=>LIVES_DATA[S.life][S.lang];
+const tpl=(s,o)=>s.replace(/\{(\w+)\}/g,(_,k)=>o[k]??"");
+const parse=v=>{ try{ const o=JSON.parse(v); return o&&Array.isArray(o.picks)?o:null; }catch(e){ return null; } };
+
+function saveLife(){
+  if(!S.life || S.screen==="cover") return;   // the cover never overwrites where the player stopped
+  const st={screen:S.screen,i:S.i,picks:S.picks,act:S.act};
+  progressCache[S.life]=st; store.set(lifeKey(S.life),JSON.stringify(st));
+}
+function loadScript(src){
+  return new Promise((res,rej)=>{ const s=document.createElement("script"); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); });
+}
+async function loadLife(id){
+  const m=lifeMeta(id), have=LIVES_DATA[id]||{};
+  for(const l of ["ru","en"]) if(!have[l]) await loadScript(m.files[l]);
+}
+
+function toneOf(i){ const k=S.picks[i]; return k==null?null:D().chapters[i].choices[k].t; }
+function counts(from=0,to=Infinity){
+  const c={tender:0,bold:0,grit:0,wit:0};
+  S.picks.forEach((k,i)=>{ if(k!=null && i>=from && i<to) c[toneOf(i)]++; });
+  return c;
+}
+function dominant(c, idxs){
+  const max=Math.max(...Object.values(c)); if(max===0) return TONE_KEYS[0];
+  const tops=TONE_KEYS.filter(k=>c[k]===max);
+  if(tops.length===1) return tops[0];
+  for(let j=idxs.length-1;j>=0;j--){ const t=toneOf(idxs[j]); if(tops.includes(t)) return t; }
+  return tops[0];
+}
+const actIdx=a=>D().chapters.map((c,i)=>c.act===a?i:-1).filter(i=>i>=0);
+
+/* ---------- chrome ---------- */
+function header(){
+  document.documentElement.lang=S.lang;
+  document.querySelectorAll(".lang button").forEach(b=>b.classList.toggle("on",b.dataset.l===S.lang));
+  const inLife = S.screen!=="menu" && S.life && LIVES_DATA[S.life];
+  document.getElementById("brand").textContent = inLife ? D().ui.brand : g().app;
+  const bl=document.getElementById("backlink");
+  bl.textContent=g().allLives; bl.style.display = (!tg && S.screen!=="menu") ? "block" : "none";
+  if(tg){ try{ S.screen==="menu" ? tg.BackButton.hide() : tg.BackButton.show(); }catch(e){} }
+  const p=document.getElementById("progress");
+  if(!inLife || S.screen==="cover"){ p.innerHTML=""; return; }
+  const d=D(), total=d.chapters.length, done=S.picks.filter(x=>x!=null).length;
+  const actNo = S.screen==="interlude"?S.act:(S.screen==="final"?d.acts.length-1:d.chapters[S.i].act);
+  p.innerHTML=`<span>${d.ui.act} ${ROMAN[actNo]} · ${d.acts[actNo].title}</span><div class="ptrack"><div class="pfill" style="width:${100*done/total}%"></div></div><span>${done}/${total}</span>`;
+}
+function tonesHTML(){
+  const d=D(), c=counts();
+  return '<div class="tones">'+TONE_KEYS.map(k=>{
+    const bars=c[k]?Array.from({length:c[k]},()=>`<i style="background:${TONE_COLOR[k]}"></i>`).join(''):'<i></i>';
+    return `<span class="tone">${d.tones[k]} <span class="bar">${bars}</span></span>`;
+  }).join('')+'</div>';
+}
+function mount(html,scroll=true){
+  document.getElementById("app").innerHTML=`<div class="screen">${html}</div>`;
+  header(); if(scroll) window.scrollTo({top:0,behavior:"smooth"});
+  if(S.screen!=="menu") saveLife();
+}
+function goBack(){
+  if(S.screen==="menu") return;
+  if(S.screen==="cover") menu(); else cover();
+}
+
+/* ---------- screens ---------- */
+async function menu(){
+  S.screen="menu"; S.life=null;
+  for(const l of LIVES){ if(!(l.id in progressCache)) progressCache[l.id]=parse(await store.get(lifeKey(l.id))); }
+  const u=g();
+  mount(`
+    <div class="intro">
+      <div class="place">${u.menuKicker}</div>
+      <div class="cover-title">${u.menuTitle}</div>
+      <p>${u.menuP}</p>
+      <div class="lives">${LIVES.map(l=>{
+        const st=progressCache[l.id], n=st?st.picks.filter(x=>x!=null).length:0;
+        const status = !st||n===0 ? u.notStarted : (st.screen==="final" ? u.done : tpl(u.inProgress,{n}));
+        return `<button class="life" data-id="${l.id}" style="--c:${l.color||'var(--red)'}">
+          <div class="nm">${l.name[S.lang]}<span class="yr">${l.years||""}</span></div>
+          <div class="tl">${l.tagline[S.lang]}</div>
+          <div class="st">${status}</div></button>`;
+      }).join("")}</div>
+      <p class="note">${u.soon}</p>
+    </div>`);
+  document.querySelectorAll(".life").forEach(b=>b.onclick=()=>openLife(b.dataset.id));
+}
+
+async function openLife(id){
+  document.getElementById("app").innerHTML=`<div class="loading">${g().loading}</div>`;
+  try{ await loadLife(id); }catch(e){ document.getElementById("app").innerHTML=`<div class="loading">${g().loadError}</div>`; return; }
+  S.life=id;
+  const st=progressCache[id] || parse(await store.get(lifeKey(id)));
+  S.picks=st?st.picks:[]; S.i=st?st.i:0; S.act=st?st.act:0;
+  progressCache[id]=st||{picks:[],i:0,act:0};
+  haptic();
+  cover();
+}
+
+function cover(){
+  S.screen="cover"; const d=D(), u=d.ui, st=progressCache[S.life];
+  const started=S.picks.filter(x=>x!=null).length>0, finished=st&&st.screen==="final";
+  mount(`
+    <div class="intro">
+      <div class="place">${u.kicker}</div>
+      <div class="cover-title">${u.coverTitle}</div>
+      <p>${u.coverP1}</p><p>${u.coverP2}</p>
+      <ul class="acts-list">${d.acts.map((a,k)=>`<li><span>${ROMAN[k]}. ${a.title}</span><span>${a.years}</span></li>`).join('')}</ul>
+      <div class="btns">
+        ${finished?`<button class="next" id="cont">${g().seePortrait}</button><button class="ghost" id="go">${u.again}</button>`
+          : started?`<button class="next" id="cont">${u.cont}</button><button class="ghost" id="go">${u.restart}</button>`
+          :`<button class="next" id="go">${u.start}</button>`}
+      </div>
+      <p class="note">${u.note}</p>
+    </div>`);
+  document.getElementById("go").onclick=()=>{S.picks=[];S.i=0;S.act=0;chapter();};
+  const c=document.getElementById("cont");
+  if(c) c.onclick=()=>{ if(finished) final(); else if(st&&st.screen==="interlude") interlude(); else chapter(); };
+}
+
+function chapter(){
+  S.screen="chapter"; const d=D(), c=d.chapters[S.i], k=S.picks[S.i];
+  const answered = k!=null;
+  mount(`
+    <div class="actlabel">${d.ui.act} ${ROMAN[c.act]} · ${d.acts[c.act].title}</div>
+    <p class="year">${c.year}</p>
+    <div class="place">${c.place}</div>
+    <h2>${c.title}</h2>
+    <div class="story">${c.story.map(p=>`<p>${p}</p>`).join('')}</div>
+    <div class="q">${c.q}</div>
+    ${answered?`<p class="picked">— ${c.choices[k].l}</p>`:
+      `<div class="choices">${c.choices.map((ch,j)=>`<button class="choice" data-k="${j}">${ch.l}</button>`).join('')}</div>`}
+    <div id="res">${answered?resultHTML():''}</div>
+    ${tonesHTML()}
+  `, !answered);
+  if(!answered) document.querySelectorAll('.choice').forEach(b=>b.onclick=()=>{
+    haptic(); S.picks[S.i]=+b.dataset.k; chapter();
+    setTimeout(()=>{const r=document.getElementById('res'); if(r) r.scrollIntoView({behavior:'smooth',block:'start'});},60);
+  });
+  else bindNext();
+}
+function resultHTML(){
+  const d=D(), c=d.chapters[S.i], ch=c.choices[S.picks[S.i]];
+  const last=S.i===d.chapters.length-1;
+  const actEnds = !last && d.chapters[S.i+1].act!==c.act;
+  const label = last?d.ui.toPortrait:(actEnds?d.ui.endAct:d.ui.next);
+  return `<div class="result">${ch.r}</div>
+    <div class="fact"><b>${d.ui.fact}</b>${c.fact}</div>
+    <div class="btns"><button class="next" id="nx">${label}</button></div>`;
+}
+function bindNext(){
+  const d=D(), c=d.chapters[S.i], last=S.i===d.chapters.length-1;
+  document.getElementById('nx').onclick=()=>{
+    if(last){ final(); return; }
+    if(d.chapters[S.i+1].act!==c.act){ S.act=c.act; interlude(); return; }
+    S.i++; chapter();
+  };
+}
+
+function interlude(){
+  S.screen="interlude"; const d=D(), a=S.act, idx=actIdx(a);
+  const t=dominant(counts(idx[0], idx[idx.length-1]+1),idx);
+  haptic("success");
+  mount(`
+    <div class="interlude">
+      <div class="actlabel">${tpl(d.ui.actDone,{n:ROMAN[a]})}</div>
+      <div class="roman">${ROMAN[a]}</div>
+      <h2>${d.acts[a].title} · ${d.acts[a].years}</h2>
+      <div class="chip" style="background:${TONE_COLOR[t]}">${d.tones[t]}</div>
+      <p class="portrait">${tpl(d.ui.interlude,{tone:d.tonesGen[t]})} ${d.toneLines[t]}</p>
+      <div class="btns" style="justify-content:center"><button class="next" id="nx">${tpl(d.ui.toAct,{n:ROMAN[a+1], title:d.acts[a+1].title})}</button></div>
+    </div>
+    ${tonesHTML()}`);
+  document.getElementById('nx').onclick=()=>{S.i=idx[idx.length-1]+1; chapter();};
+}
+
+function lifeline(){
+  const d=D(), n=d.acts.length, W=680, H=96, pad=6, seg=(W-pad*2)/n;
+  let svg=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${d.ui.lifeline}">`;
+  svg+=`<line x1="${pad}" y1="46" x2="${W-pad}" y2="46" style="stroke:var(--line)" stroke-width="2"/>`;
+  d.acts.forEach((a,k)=>{
+    const idx=actIdx(k), t=dominant(counts(idx[0],idx[idx.length-1]+1),idx), x=pad+seg*k;
+    svg+=`<rect x="${x+3}" y="34" width="${seg-6}" height="24" rx="3" style="fill:${TONE_COLOR[t]}"/>`;
+    svg+=`<text x="${x+seg/2}" y="51" text-anchor="middle" font-family="Playfair Display,serif" font-weight="800" font-size="13" fill="#fff">${ROMAN[k]}</text>`;
+    svg+=`<text x="${x+seg/2}" y="80" text-anchor="middle" font-family="PT Serif,serif" font-size="11.5" style="fill:var(--soft)">${a.years}</text>`;
+    svg+=`<text x="${x+seg/2}" y="22" text-anchor="middle" font-family="PT Serif,serif" font-size="11.5" font-style="italic" style="fill:var(--ink)">${d.tones[t]}</text>`;
+  });
+  return svg+`</svg>`;
+}
+
+function final(){
+  S.screen="final"; const d=D(), all=d.chapters.map((_,i)=>i);
+  const t=dominant(counts(),all);
+  haptic("success");
+  const rows=d.acts.map((a,k)=>`<div class="path-act">${ROMAN[k]}. ${a.title}</div>`+
+    actIdx(k).map(i=>{const c=d.chapters[i], ch=c.choices[S.picks[i]];
+      return `<div class="path-row"><div class="y">${c.year}</div><div>${c.title}<span class="tag" style="background:${TONE_COLOR[ch.t]}">${d.tones[ch.t]}</span><div class="c">${ch.l}</div></div></div>`}).join('')).join('');
+  mount(`
+    <div class="actlabel">${d.ui.finalKicker}</div>
+    <p class="year">${d.chapters[d.chapters.length-1].year}</p>
+    <h2>${d.ui.portraitTitle}</h2>
+    <p class="portrait">${d.portraits[t]}</p>
+    <div class="lifeline">${lifeline()}</div>
+    <div class="legend">${TONE_KEYS.map(k=>`<span><i style="background:${TONE_COLOR[k]}"></i>${d.tones[k]}</span>`).join('')}</div>
+    <p style="margin-top:24px">${d.ui.goesOn}</p>
+    <details><summary>${d.ui.path}</summary>${rows}</details>
+    ${tonesHTML()}
+    <div class="btns"><button class="next" id="again">${d.ui.again}</button><button class="ghost" id="lives">${g().allLives.replace('← ','')}</button></div>
+  `);
+  document.getElementById('again').onclick=()=>{S.picks=[];S.i=0;S.act=0;chapter();};
+  document.getElementById('lives').onclick=menu;
+}
+
+function rerender(){
+  const y=window.scrollY;
+  if(S.screen==="menu") menu();
+  else if(S.screen==="cover") cover();
+  else if(S.screen==="chapter"){ chapter(); window.scrollTo(0,y); }
+  else if(S.screen==="interlude") interlude();
+  else if(S.screen==="final") final();
+}
+
+/* ---------- wiring ---------- */
+document.querySelectorAll(".lang button").forEach(b=>b.onclick=()=>{
+  if(S.lang===b.dataset.l) return;
+  S.lang=b.dataset.l; store.set("ol_lang",S.lang); haptic(); rerender();
+});
+document.getElementById("backlink").onclick=goBack;
+
+(async function init(){
+  if(tg){
+    try{ tg.ready(); tg.expand(); }catch(e){}
+    if(tgAtLeast("7.7")){ try{ tg.disableVerticalSwipes(); }catch(e){} }
+    try{ tg.BackButton.onClick(goBack); tg.onEvent("themeChanged",applyTheme); }catch(e){}
+  }
+  applyTheme();
+  const h=location.hash.slice(1);
+  const savedLang=await store.get("ol_lang");
+  const userLang=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user&&tg.initDataUnsafe.user.language_code)||navigator.language||"ru";
+  S.lang = (h==="ru"||h==="en") ? h : (savedLang==="ru"||savedLang==="en") ? savedLang : (/^(ru|uk|be|kk)/i.test(userLang)?"ru":"en");
+  // a single life? open the menu anyway, so the structure is visible from day one
+  menu();
+})();
+</script>
+</body>
+</html>
